@@ -295,15 +295,18 @@ word_pairs <- df %>%
   anti_join(stop_words[stop_words$lexicon=="SMART",]) %>%
   mutate(word = removeWords(word,c(stopwords(),"warden","y'all","ya'll"))) %>%
   filter(word!="") %>%
-  pairwise_count(word, Name2, sort = TRUE)
+  add_count(word) %>%
+  filter(n>5) %>%
+  pairwise_cor(word, Name2, sort = TRUE)
 
 set.seed(611)
 
 word_pairs %>%
-  filter(n >= 20)               %>%
+  top_n(300) %>%
+  filter(correlation >= .1)               %>%
   graph_from_data_frame()        %>%
   ggraph(layout = "fr") +
-  geom_edge_link(aes(edge_alpha = n, edge_width = n), edge_colour = "#4E79A7") +
+  geom_edge_link(aes(edge_alpha = correlation, edge_width = correlation), edge_colour = "#4E79A7") +
   ggtitle("Word pairs") +
   geom_node_point(size = 5) +
   geom_node_text(aes(label = name), repel = TRUE,
