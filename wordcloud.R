@@ -6,7 +6,8 @@ library(tidyverse)
 
 spacy_initialize()
 
-df <- read_csv("last_statements.csv")
+df <- read_csv("last_statements.csv")%>%
+  distinct(Statement,.keep_all = T)
 
 tagged <- spacy_parse(df$Statement)
 
@@ -14,6 +15,6 @@ nouns <- tagged %>%
   as_tibble() %>%
   filter(pos=="NOUN") %>%
   filter(lemma != "statement") %>%
-  count(lemma)
+  count(lemma) 
 
-wordcloud(nouns$lemma,nouns$n,colors=c("black","orange","orange","orange","darkred"))
+wordcloud(nouns$lemma,nouns$n,colors=c("black","orange","orange","orange","darkred"),min.freq = 5)
